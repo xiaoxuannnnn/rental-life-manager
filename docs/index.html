@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>合租生活管家</title>
+  <meta name="description" content="面向年轻合租人的费用 AA、清洁排班、公共物品登记与室友公约管理工具。" />
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --fg: #202124;
+      --panel: #fffdf8;
+      --line: #ded8ca;
+      --muted: #6f6a60;
+      --teal: #1f7a8c;
+      --rose: #be123c;
+      --amber: #d97706;
+      --green: #2f7d52;
+      --violet: #7c3aed;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 44px 24px 22px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+      gap: 24px;
+    }
+    .hero-copy {
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 56px; line-height: 1; }
+    h2 { font-size: 22px; line-height: 1.2; }
+    .subtitle {
+      max-width: 720px;
+      margin: 20px 0 0;
+      color: #4d4a44;
+      font-size: 18px;
+      line-height: 1.75;
+    }
+    .hero-panel {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 16px;
+      background: #21201d;
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(48, 44, 36, .16);
+    }
+    .metric {
+      min-height: 118px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      background: #fbf4e5;
+      border-radius: 6px;
+    }
+    .metric span, small { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .metric strong { font-size: 25px; line-height: 1.1; }
+    .roommates, .workspace {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px 24px;
+    }
+    .roommates {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
+      gap: 18px;
+      padding-bottom: 56px;
+    }
+    .panel, .mate, .balance-card, .row, .supply, .rule, .task {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .panel { padding: 20px; }
+    .wide { grid-column: 1 / -1; }
+    .mate {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      font-weight: 800;
+    }
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .pill, .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid #c9dddf;
+      border-radius: 999px;
+      color: var(--teal);
+      background: #eef7f7;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .warn { border-color: #f2c38a; color: #9a4d00; background: #fff1d6; }
+    .inline-form, .supply-form {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .inline-form { grid-template-columns: 1.2fr .7fr .75fr .85fr auto; }
+    .supply-form { grid-template-columns: 1fr .8fr auto; }
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid #d6cfc1;
+      border-radius: 6px;
+      background: #fffaf0;
+      color: var(--fg);
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(31, 122, 140, .15);
+    }
+    .primary, .ghost {
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--teal);
+      border-radius: 6px;
+      background: var(--teal);
+      color: white;
+      font-weight: 800;
+    }
+    .ghost { background: #eef7f7; color: var(--teal); }
+    .balance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .balance-card {
+      min-height: 118px;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .positive { color: var(--green); }
+    .negative { color: var(--rose); }
+    .expense-list, .task-list, .supply-list, .rule-list { display: grid; gap: 10px; }
+    .row, .supply {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px;
+    }
+    .row b { color: var(--teal); white-space: nowrap; }
+    .task, .rule {
+      width: 100%;
+      min-height: 70px;
+      padding: 12px;
+      text-align: left;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .task:hover, .rule:hover { transform: translateY(-1px); border-color: var(--teal); }
+    .task span { display: block; margin-bottom: 6px; font-weight: 800; }
+    .task.done { background: #eef8ef; border-color: #b7d8bd; }
+    .task.done span { text-decoration: line-through; color: var(--green); }
+    .rule {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      background: #fffaf0;
+    }
+    .rule span {
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #eeeeea;
+      color: #5e5a52;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .rule.active { border-color: #abd2c2; background: #f1fbf5; }
+    .rule.active span { color: var(--green); background: #dff3e7; }
+    @media (max-width: 920px) {
+      .hero, .workspace { grid-template-columns: 1fr; }
+      .hero-copy { min-height: auto; padding-bottom: 24px; }
+      h1 { font-size: 42px; }
+      .roommates, .balance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .inline-form { grid-template-columns: 1fr 1fr; }
+      .inline-form .primary { grid-column: 1 / -1; }
+    }
+    @media (max-width: 560px) {
+      .hero { padding: 32px 16px 18px; }
+      .workspace, .roommates { padding-left: 16px; padding-right: 16px; }
+      .hero-panel, .roommates, .balance-grid, .inline-form, .supply-form { grid-template-columns: 1fr; }
+      .panel-header { flex-direction: column; }
+      .row, .supply { align-items: flex-start; flex-direction: column; }
+      .rule { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Shared Home OS</p>
+        <h1>合租生活管家</h1>
+        <p class="subtitle">把房租水电、清洁值日、公共物品和室友公约放进同一个可协作看板，让账目清楚、提醒及时、规则有据可查。</p>
+      </div>
+      <div class="hero-panel" aria-label="本月合租状态">
+        <div class="metric"><span>本月待结算</span><strong id="totalExpense">¥0.00</strong></div>
+        <div class="metric"><span>待完成值日</span><strong id="pendingChores">0 项</strong></div>
+        <div class="metric"><span>低库存提醒</span><strong id="lowSupplies">0 项</strong></div>
+        <div class="metric"><span>生效公约</span><strong id="activeRules">0 条</strong></div>
+      </div>
+    </section>
+
+    <section class="roommates" id="roommates" aria-label="室友列表"></section>
+
+    <section class="workspace">
+      <article class="panel">
+        <div class="panel-header">
+          <div><p class="eyebrow">Expense Split</p><h2>费用 AA 分摊</h2></div>
+          <span class="pill" id="avgExpense">人均 ¥0.00</span>
+        </div>
+        <form class="inline-form" id="expenseForm">
+          <input id="expenseTitle" aria-label="费用名称" placeholder="费用名称" />
+          <input id="expenseAmount" aria-label="金额" placeholder="金额" inputmode="decimal" />
+          <select id="expensePayer" aria-label="付款人"></select>
+          <select id="expenseCategory" aria-label="费用类别">
+            <option>房租</option><option>水电</option><option>网络</option><option>公共物品</option><option>维修</option>
+          </select>
+          <button class="primary" type="submit">添加</button>
+        </form>
+        <div class="balance-grid" id="balances"></div>
+        <div class="expense-list" id="expenses"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div><p class="eyebrow">Cleaning</p><h2>清洁值日排班</h2></div>
+          <button class="ghost" type="button" id="rotateChores">轮换</button>
+        </div>
+        <div class="task-list" id="chores"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div><p class="eyebrow">Supplies</p><h2>公共物品登记与提醒</h2></div>
+          <span class="pill warn" id="supplyWarning">0 个需补货</span>
+        </div>
+        <form class="supply-form" id="supplyForm">
+          <input id="supplyName" aria-label="物品名称" placeholder="物品" />
+          <input id="supplyStock" aria-label="库存数量" placeholder="库存" inputmode="numeric" />
+          <button class="primary" type="submit">登记</button>
+        </form>
+        <div class="supply-list" id="supplies"></div>
+      </article>
+
+      <article class="panel wide">
+        <div class="panel-header">
+          <div><p class="eyebrow">Agreement</p><h2>室友公约管理</h2></div>
+          <span class="pill">点击切换生效状态</span>
+        </div>
+        <div class="rule-list" id="rules"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const roommates = [
+      { id: "xiao", name: "晓萱", color: "#1f7a8c" },
+      { id: "lin", name: "林然", color: "#7c3aed" },
+      { id: "chen", name: "陈予", color: "#d97706" },
+      { id: "zhou", name: "周禾", color: "#be123c" },
+    ];
+    let expenses = [
+      { id: 1, title: "9月房租", amount: 8400, payer: "晓萱", category: "房租", date: "09-01" },
+      { id: 2, title: "水电燃气", amount: 486, payer: "林然", category: "水电", date: "09-05" },
+      { id: 3, title: "厨房纸和垃圾袋", amount: 92, payer: "陈予", category: "公共物品", date: "09-07" },
+      { id: 4, title: "路由器宽带", amount: 180, payer: "周禾", category: "网络", date: "09-10" },
+    ];
+    let chores = [
+      { id: 1, area: "客厅吸尘 + 拖地", owner: "晓萱", due: "周一晚 20:00", status: "pending" },
+      { id: 2, area: "厨房台面 + 垃圾分类", owner: "林然", due: "周三晚 21:00", status: "pending" },
+      { id: 3, area: "卫生间镜柜 + 地漏", owner: "陈予", due: "周五晚 20:30", status: "done" },
+      { id: 4, area: "阳台晾晒区整理", owner: "周禾", due: "周日午后", status: "pending" },
+    ];
+    let supplies = [
+      { id: 1, name: "洗衣液", stock: 1, unit: "瓶", threshold: 1, owner: "晓萱" },
+      { id: 2, name: "垃圾袋", stock: 8, unit: "只", threshold: 10, owner: "林然" },
+      { id: 3, name: "厨房纸", stock: 3, unit: "卷", threshold: 2, owner: "陈予" },
+      { id: 4, name: "饮用水", stock: 2, unit: "桶", threshold: 2, owner: "周禾" },
+    ];
+    let rules = [
+      { id: 1, text: "工作日 23:30 后进入安静时段，洗衣机与外放音响暂停使用。", active: true },
+      { id: 2, text: "公共采购默认四人 AA，超过 100 元先在群里确认。", active: true },
+      { id: 3, text: "厨房使用后 30 分钟内恢复台面，隔夜餐具计入当周提醒。", active: true },
+      { id: 4, text: "访客留宿提前一天说明，公共区域保持可通行。", active: false },
+    ];
+    const $ = (id) => document.getElementById(id);
+    const money = (value) => `¥${Number(value).toFixed(2)}`;
+    function render() {
+      const total = expenses.reduce((sum, item) => sum + item.amount, 0);
+      const avg = total / roommates.length;
+      const low = supplies.filter(item => item.stock <= item.threshold);
+      $("totalExpense").textContent = money(total);
+      $("avgExpense").textContent = `人均 ${money(avg)}`;
+      $("pendingChores").textContent = `${chores.filter(item => item.status === "pending").length} 项`;
+      $("lowSupplies").textContent = `${low.length} 项`;
+      $("supplyWarning").textContent = `${low.length} 个需补货`;
+      $("activeRules").textContent = `${rules.filter(item => item.active).length} 条`;
+      $("roommates").innerHTML = roommates.map(mate => `
+        <div class="mate"><span class="avatar" style="background:${mate.color}">${mate.name[0]}</span><div><strong>${mate.name}</strong><small>本月参与 AA 和轮值</small></div></div>
+      `).join("");
+      $("expensePayer").innerHTML = roommates.map(mate => `<option>${mate.name}</option>`).join("");
+      const paid = Object.fromEntries(roommates.map(mate => [mate.name, 0]));
+      expenses.forEach(item => paid[item.payer] += item.amount);
+      $("balances").innerHTML = roommates.map(mate => {
+        const balance = paid[mate.name] - avg;
+        return `<div class="balance-card"><span class="avatar" style="background:${mate.color}">${mate.name[0]}</span><small>已垫付 ${money(paid[mate.name])}</small><strong class="${balance >= 0 ? "positive" : "negative"}">${balance >= 0 ? "应收" : "应付"} ${money(Math.abs(balance))}</strong></div>`;
+      }).join("");
+      $("expenses").innerHTML = expenses.map(item => `
+        <div class="row"><div><strong>${item.title}</strong><small>${item.date} · ${item.category} · ${item.payer} 垫付</small></div><b>${money(item.amount)}</b></div>
+      `).join("");
+      $("chores").innerHTML = chores.map(item => `
+        <button class="task ${item.status}" type="button" onclick="toggleChore(${item.id})"><span>${item.area}</span><small>${item.owner} · ${item.due}</small></button>
+      `).join("");
+      $("supplies").innerHTML = supplies.map(item => `
+        <div class="supply"><div><strong>${item.name}</strong><small>${item.owner} 负责补充</small></div><span class="badge ${item.stock <= item.threshold ? "warn" : ""}">${item.stock}${item.unit}</span></div>
+      `).join("");
+      $("rules").innerHTML = rules.map(rule => `
+        <button class="rule ${rule.active ? "active" : ""}" type="button" onclick="toggleRule(${rule.id})"><span>${rule.active ? "生效" : "草案"}</span><strong>${rule.text}</strong></button>
+      `).join("");
+    }
+    function toggleChore(id) {
+      chores = chores.map(item => item.id === id ? { ...item, status: item.status === "done" ? "pending" : "done" } : item);
+      render();
+    }
+    function toggleRule(id) {
+      rules = rules.map(item => item.id === id ? { ...item, active: !item.active } : item);
+      render();
+    }
+    $("rotateChores").addEventListener("click", () => {
+      chores = chores.map(item => {
+        const current = roommates.findIndex(mate => mate.name === item.owner);
+        return { ...item, owner: roommates[(current + 1) % roommates.length].name, status: "pending" };
+      });
+      render();
+    });
+    $("expenseForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const title = $("expenseTitle").value.trim();
+      const amount = Number($("expenseAmount").value);
+      if (!title || Number.isNaN(amount) || amount <= 0) return;
+      expenses = [{ id: Date.now(), title, amount, payer: $("expensePayer").value, category: $("expenseCategory").value, date: "今天" }, ...expenses];
+      $("expenseTitle").value = "";
+      $("expenseAmount").value = "";
+      render();
+    });
+    $("supplyForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const name = $("supplyName").value.trim();
+      const stock = Number($("supplyStock").value);
+      if (!name || Number.isNaN(stock)) return;
+      const owner = roommates[supplies.length % roommates.length].name;
+      supplies = [{ id: Date.now(), name, stock, unit: "件", threshold: 1, owner }, ...supplies];
+      $("supplyName").value = "";
+      $("supplyStock").value = "";
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
